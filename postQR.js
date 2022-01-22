@@ -1,5 +1,5 @@
 function postQR(url,windowName) {
-    alert('Táº¡o mĂ£ QR thĂ nh cĂ´ng, vui lĂ²ng má»Ÿ camera Ä‘á»ƒ quĂ©t mĂ£ QR!')
+    alert('Tạo mã QR thành công, vui lòng mở Camera để quét!')
       var u = document.getElementById("user").value;
       var p = document.getElementById("pass").value;
       var tsp = document.getElementById("tsp").value;
