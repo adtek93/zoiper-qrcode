@@ -108,6 +108,7 @@
               * Mã QR-Code sử dụng App Zoiper (iOS & Android)<br>
               ** Mã có hiệu lực 1 lần quét, nhấn Tạo mã QR để get mã mới<br>
               ** Mật khẩu phải chứa đúng 1 ký tự đặc biệt (@, #, $, %, &, _, -, =, +)
+              ** Mật khẩu không bắt đầu bằng kí tự đặc biệt!
             </p>
             <form id="myForm" onsubmit="return postQR();">
               <div class="mb-3">
@@ -196,13 +197,15 @@
     }
 
     function postQR() {
-      // Get form inputs
-      var u = document.getElementById("user").value.trim();
-      var p = document.getElementById("pass").value.trim();
-      var tsp = document.getElementById("tsp").value.trim();
-      var dm = document.getElementById("dm").value.trim();
-      var transp = document.getElementById("transp").value;
+// Get form inputs
+  var u = document.getElementById("user").value.trim();
+  var p = document.getElementById("pass").value.trim();
+  var tsp = document.getElementById("tsp").value.trim();
+  var dm = document.getElementById("dm").value.trim();
+  var transp = document.getElementById("transp").value;
 
+// Thêm timestamp để tạo URL mới mỗi lần (giải quyết vấn đề single-use)
+  var ts = Date.now();  // Timestamp milliseconds hiện tại
       // Show spinner
       document.querySelector('.spinner').style.display = 'inline-block';
 
@@ -230,7 +233,7 @@
       // Validate password (must contain exactly one special character)
       if (!/^[a-zA-Z0-9]*[@#$%&_\-=+][a-zA-Z0-9]*$/.test(p)) {
         document.getElementById('pass-error').style.display = 'block';
-        showToast('Lỗi', 'Mật khẩu phải chứa đúng 1 ký tự đặc biệt (@, #, $, %, &, _, -, =, +)!');
+        showToast('Lỗi', 'Mật khẩu phải chứa đúng 1 ký tự đặc biệt (@, #, $, %, &, _, -, =, +) và không bắt đầu bằng KTDB!');
         document.querySelector('.spinner').style.display = 'none';
         return false;
       }
@@ -243,9 +246,10 @@
       transp = encodeURIComponent(transp);
 
       // Construct URL
-      var url = `https://oem.zoiper.com/qr.php?provider_id=ae45d54c7179618d6e529a6219c0aa80&u=${u}&h=${dm}:${tsp}&p=${p}&tr=${transp}`;
-      console.log('Generated QR URL:', url); // Log URL for debugging
-
+     // var url = `https://oem.zoiper.com/qr.php?provider_id=ae45d54c7179618d6e529a6219c0aa80&u=${u}&h=${dm}:${tsp}&p=${p}&tr=${transp}`;
+      //console.log('Generated QR URL:', url); // Log URL for debugging
+// Construct URL với tham số ts mới
+  var url = `https://oem.zoiper.com/qr.php?provider_id=ae45d54c7179618d6e529a6219c0aa80&u=${u}&h=${dm}:${tsp}&p=${p}&tr=${transp}&ts=${ts}`;
       // Show QR code in modal
       try {
         var qrImage = document.getElementById('qrImage');
