@@ -132,9 +132,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const visitCountEl = document.getElementById('visit-count');
   if (visitCountEl) {
     // using counterapi.dev to store generated QR count without incrementing on load
-    fetch('https://api.counterapi.dev/v1/adtek93-zoiper-qr/qr-generated')
+    // Need trailing slash to prevent 301 redirect which causes CORS error
+    fetch('https://api.counterapi.dev/v1/adtek93-zoiper-qr/qr-generated/', { cache: 'no-store' })
       .then(response => response.json())
       .then(data => {
+        // Handle {"code":400,"message":"record not found"} by showing 0
         if (data && data.count !== undefined) {
           visitCountEl.textContent = data.count.toLocaleString();
         } else {
