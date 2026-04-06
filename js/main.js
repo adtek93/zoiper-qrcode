@@ -118,4 +118,23 @@ document.addEventListener('DOMContentLoaded', () => {
     spinner.style.display = 'none';
     submitBtn.disabled = false;
   });
+
+  // Fetch Visit Count
+  const visitCountEl = document.getElementById('visit-count');
+  if (visitCountEl) {
+    // using counterapi.dev to store generic page visits
+    fetch('https://api.counterapi.dev/v1/adtek93-zoiper-qr/visits/up')
+      .then(response => response.json())
+      .then(data => {
+        if (data && data.count !== undefined) {
+          visitCountEl.textContent = data.count.toLocaleString();
+        } else {
+          visitCountEl.textContent = '--';
+        }
+      })
+      .catch(err => {
+        console.error('Counter API Error:', err);
+        visitCountEl.textContent = '--';
+      });
+  }
 });
