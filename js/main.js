@@ -89,13 +89,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const ts = Date.now();
     const url = `https://oem.zoiper.com/qr.php?provider_id=ae45d54c7179618d6e529a6219c0aa80&u=${u}&h=${dm}:${tsp}&p=${p}&tr=${transp}&ts=${ts}`;
 
-    // Load QR Image
     qrImage.onload = () => {
       qrImage.style.display = 'block';
       spinner.style.display = 'none';
       submitBtn.disabled = false;
       showToast('Thành công', 'Tạo mã QR thành công, quét bằng Zoiper!', false);
       qrModal.show();
+      
+      // Increment counter
+      const visitCountEl = document.getElementById('visit-count');
+      if (visitCountEl) {
+        fetch('https://api.counterapi.dev/v1/adtek93-zoiper-qr/qr-generated/up')
+          .then(res => res.json())
+          .then(data => {
+            if (data && data.count !== undefined) visitCountEl.textContent = data.count.toLocaleString();
+          }).catch(console.error);
+      }
     };
 
     qrImage.onerror = () => {
@@ -122,19 +131,19 @@ document.addEventListener('DOMContentLoaded', () => {
   // Fetch Visit Count
   const visitCountEl = document.getElementById('visit-count');
   if (visitCountEl) {
-    // using counterapi.dev to store generic page visits
-    fetch('https://api.counterapi.dev/v1/adtek93-zoiper-qr/visits/up')
+    // using counterapi.dev to store generated QR count without incrementing on load
+    fetch('https://api.counterapi.dev/v1/adtek93-zoiper-qr/qr-generated')
       .then(response => response.json())
       .then(data => {
         if (data && data.count !== undefined) {
           visitCountEl.textContent = data.count.toLocaleString();
         } else {
-          visitCountEl.textContent = '--';
+          visitCountEl.textContent = '0';
         }
       })
       .catch(err => {
         console.error('Counter API Error:', err);
-        visitCountEl.textContent = '--';
+        visitCountEl.textContent = '0';
       });
   }
 });
