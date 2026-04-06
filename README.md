@@ -2,7 +2,7 @@
 
 A modern, web-based utility designed to quickly generate QR codes for provisioning SIP accounts on the Zoiper softphone app.
 
-🌍 **Live Demo:** [https://adtek93.github.io/zoiper-qrcode/](https://adtek93.github.io/zoiper-qrcode/)
+🌍 **Live Demo:** [https://zoiper-qr.adtek.io.vn](https://zoiper-qr.adtek.io.vn)
 
 ## 🚀 Features
 
