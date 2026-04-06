@@ -1,293 +1,123 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
-  <title>QR Code Generator for Zoiper</title>
-  <link rel="icon" type="image/x-icon" href="https://github.com/haona93/Zoiper-QRcode/blob/a298272859571792dbaa743cab54191235fa89ee/voip.png?raw=true">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <title>Adtek Labs - Zoiper QR Generator</title>
+  
+  <link rel="icon" type="image/x-icon" href="voip.png">
+  
+  <!-- Fonts & Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    body {
-      background: url('https://github.com/haona93/Zoiper-QRcode/blob/main/High_resolution_wallpaper_background_ID_77701653372.jpg?raw=true') no-repeat center fixed;
-      background-size: cover;
-      background-color: #f8f9fa;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .card {
-      border-radius: 20px;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
-      background: rgba(255, 255, 255, 0.95);
-      transition: transform 0.3s ease;
-    }
-    .card:hover {
-      transform: translateY(-5px);
-    }
-    .form-control, .form-select {
-      border-radius: 10px;
-      border: 1px solid #ced4da;
-      transition: border-color 0.3s, box-shadow 0.3s;
-    }
-    .form-control:focus, .form-select:focus {
-      border-color: #007bff;
-      box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
-    }
-    .btn {
-      border-radius: 10px;
-      padding: 12px 24px;
-      font-weight: 600;
-      transition: transform 0.2s, background-color 0.3s;
-    }
-    .btn:hover {
-      transform: translateY(-2px);
-    }
-    .note {
-      font-size: 0.85rem;
-      color: #6c757d;
-      background: #e9ecef;
-      padding: 10px;
-      border-radius: 8px;
-    }
-    .header-icon {
-      color: #007bff;
-      font-size: 1.5rem;
-    }
-    .error-message {
-      color: #dc3545;
-      font-size: 0.9rem;
-      display: none;
-      margin-top: 5px;
-    }
-    .spinner {
-      display: none;
-      margin-left: 10px;
-    }
-    .modal-content {
-      border-radius: 15px;
-      background: rgba(255, 255, 255, 0.95);
-    }
-    .modal-body img {
-      max-width: 100%;
-      height: auto;
-      display: block;
-      margin: 0 auto;
-    }
-    .modal-body .error {
-      color: #dc3545;
-      text-align: center;
-      font-weight: 500;
-    }
-    .toast-container {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 1055;
-    }
-    .toast {
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    }
-  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-md-6 col-lg-5">
-        <div class="card p-4">
-          <div class="card-body">
-            <h4 class="text-center mb-4">
-              <i class="fas fa-qrcode header-icon me-2"></i>
-              <b>QR Code Generator for Zoiper</b>
-            </h4>
-            <p class="note mb-4">
-              <b>Lưu ý:</b><br>
-              * Mã QR-Code sử dụng App Zoiper (iOS & Android)<br>
-              ** Mã có hiệu lực 1 lần quét, nhấn Tạo mã QR để get mã mới<br>
-              ** Mật khẩu phải chứa đúng 1 ký tự đặc biệt (@, #, $, %, &, _, -, =, +)
-              ** Mật khẩu không bắt đầu bằng kí tự đặc biệt!<br>
-              ----<br>
-              Last Update: 02.10.2025
-            </p>
-            <form id="myForm" onsubmit="return postQR();">
-              <div class="mb-3">
-                <label for="dm" class="form-label"><b>Server Host</b></label>
-                <input type="text" class="form-control" id="dm" placeholder="Nhập IP hoặc Domain tổng đài..." required autofocus>
-              </div>
-              <div class="mb-3">
-                <label for="tsp" class="form-label"><b>Port</b></label>
-                <input type="text" class="form-control" id="tsp" placeholder="Nhập Port..." required pattern="\d+">
-                <div id="tsp-error" class="error-message">Port phải là số.</div>
-              </div>
-              <div class="mb-3">
-                <label for="transp" class="form-label"><b>Transport</b></label>
-                <select class="form-select" id="transp" required>
-                  <option value="0">UDP</option>
-                  <option value="2">TLS</option>
-                  <option value="1">TCP</option>
-                </select>
-              </div>
-              <div class="mb-3">
-                <label for="user" class="form-label"><b>Username</b></label>
-                <input type="text" class="form-control" id="user" placeholder="Nhập số máy nhánh" required>
-              </div>
-              <div class="mb-4">
-                <label for="pass" class="form-label"><b>Password</b></label>
-                <input type="password" class="form-control" id="pass" placeholder="Nhập mật khẩu số máy nhánh" required>
-                <div id="pass-error" class="error-message">Mật khẩu phải chứa đúng 1 ký tự đặc biệt (@, #, $, %, &, _, -, =, +).</div>
-              </div>
-              <div class="d-grid gap-2 d-md-flex justify-content-md-center">
-                <button type="submit" class="btn btn-success me-md-2">
-                  <i class="fas fa-plus me-1"></i> Tạo
-                  <span class="spinner-border spinner-border-sm spinner"></span>
-                </button>
-                <button type="reset" class="btn btn-danger"><i class="fas fa-sync-alt me-1"></i> Làm mới</button>
-              </div>
-            </form>
+
+  <!-- Theme Toggle Button -->
+  <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode" title="Toggle Mode">
+    <i class="fas fa-moon"></i>
+    <i class="fas fa-sun"></i>
+  </button>
+
+  <div class="container h-100 d-flex align-items-center justify-content-center">
+    <!-- Main Glass Card -->
+    <div class="glass-card">
+      <div class="card-header">
+        <i class="fas fa-qrcode header-icon"></i>
+        <h4>Adtek Labs &mdash; Zoiper QR Generator</h4>
+      </div>
+      
+      <div class="info-banner">
+        <b>Lưu ý quan trọng:</b>
+        <ul>
+          <li>Mã QR-Code sử dụng cho App Zoiper (iOS & Android).</li>
+          <li>Mã chỉ có hiệu lực quét 1 lần. Nếu cần, hãy tạo mã mới.</li>
+          <li>Nhập đúng thông tin đăng ký SIP. Mật khẩu được mã hóa an toàn trước khi gử đi.</li>
+        </ul>
+      </div>
+
+      <form id="qrForm">
+        <div class="form-group">
+          <label for="dm" class="form-label">Server Host</label>
+          <input type="text" class="form-control" id="dm" placeholder="IP hoặc Domain tổng đài..." required autofocus>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 form-group">
+            <label for="tsp" class="form-label">Port</label>
+            <input type="text" class="form-control" id="tsp" placeholder="Ví dụ: 5060" required pattern="\d+">
+            <div id="tsp-error" class="error-message"><i class="fas fa-exclamation-circle"></i> Port phải là số.</div>
+          </div>
+          <div class="col-md-6 form-group">
+            <label for="transp" class="form-label">Transport</label>
+            <select class="form-select" id="transp" required>
+              <option value="0">UDP</option>
+              <option value="1">TCP</option>
+              <option value="2">TLS</option>
+            </select>
           </div>
         </div>
-      </div>
+
+        <div class="form-group">
+          <label for="user" class="form-label">Username</label>
+          <input type="text" class="form-control" id="user" placeholder="Số máy nhánh" required>
+        </div>
+
+        <div class="form-group mb-4">
+          <label for="pass" class="form-label">Password</label>
+          <input type="password" class="form-control" id="pass" placeholder="Mật khẩu máy nhánh" required>
+        </div>
+
+        <div class="btn-group">
+          <button type="button" id="resetBtn" class="btn btn-secondary" onclick="document.getElementById('qrForm').reset()">
+            <i class="fas fa-sync-alt"></i> Làm mới
+          </button>
+          <button type="submit" id="submitBtn" class="btn btn-primary">
+            <i class="fas fa-magic"></i> Tạo QR Mới
+            <div class="spinner"></div>
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 
-  <!-- Modal for displaying QR code -->
+  <!-- QR Modal -->
   <div class="modal fade" id="qrModal" tabindex="-1" aria-labelledby="qrModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="qrModalLabel">Mã QR Zoiper</h5>
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content glass-modal text-center p-3">
+        <div class="modal-header border-0 pb-0 justify-content-between">
+          <h5 class="modal-title w-100" id="qrModalLabel">Mã QR Của Bạn</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <div id="qr-error" class="error" style="display: none;">Không thể tải mã QR. Vui lòng kiểm tra thông tin hoặc thử lại.</div>
-          <img id="qrImage" src="" alt="QR Code" style="display: none;">
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+          <div id="qr-error" class="error-message text-center" style="display:none;">Không thể tải mã QR!</div>
+          <img id="qrImage" src="" alt="QR Code" class="img-fluid mx-auto d-block rounded" style="display: none; max-width: 200px;">
+          <p class="text-muted mt-3 small mb-0">Quét mã này bằng Zoiper trên điện thoại của bạn.</p>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Toast container for notifications -->
-  <div class="toast-container">
-    <div class="toast" id="notificationToast" role="alert" aria-live="assertive" aria-atomic="true">
-      <div class="toast-header">
+  <!-- Toast Notification -->
+  <div class="toast-container position-fixed top-0 end-0 p-3">
+    <div id="notificationToast" class="toast border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header bg-transparent text-white border-0">
         <strong class="me-auto" id="toastTitle"></strong>
-        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
       </div>
-      <div class="toast-body" id="toastBody"></div>
+      <div class="toast-body fw-medium" id="toastBody"></div>
     </div>
   </div>
 
+  <!-- Bootstrap & Custom JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    // Function to show toast notification
-    function showToast(title, message, isError = true) {
-      const toast = document.getElementById('notificationToast');
-      const toastTitle = document.getElementById('toastTitle');
-      const toastBody = document.getElementById('toastBody');
-      toastTitle.textContent = title;
-      toastBody.textContent = message;
-      toast.classList.remove('bg-success', 'bg-danger', 'text-white');
-      toast.classList.add(isError ? 'bg-danger' : 'bg-success', 'text-white');
-      const bsToast = new bootstrap.Toast(toast);
-      bsToast.show();
-    }
+  <script src="js/main.js"></script>
 
-    function postQR() {
-// Get form inputs
-  var u = document.getElementById("user").value.trim();
-  var p = document.getElementById("pass").value.trim();
-  var tsp = document.getElementById("tsp").value.trim();
-  var dm = document.getElementById("dm").value.trim();
-  var transp = document.getElementById("transp").value;
-
-// Thêm timestamp để tạo URL mới mỗi lần (giải quyết vấn đề single-use)
-  var ts = Date.now();  // Timestamp milliseconds hiện tại
-      // Show spinner
-      document.querySelector('.spinner').style.display = 'inline-block';
-
-      // Reset error messages
-      document.getElementById('tsp-error').style.display = 'none';
-      document.getElementById('pass-error').style.display = 'none';
-      document.getElementById('qr-error').style.display = 'none';
-      document.getElementById('qrImage').style.display = 'none';
-
-      // Validate inputs
-      if (!u || !p || !tsp || !dm || !transp) {
-        showToast('Lỗi', 'Vui lòng điền đầy đủ thông tin!');
-        document.querySelector('.spinner').style.display = 'none';
-        return false;
-      }
-
-      // Validate port (must be numeric)
-      if (!/^\d+$/.test(tsp)) {
-        document.getElementById('tsp-error').style.display = 'block';
-        showToast('Lỗi', 'Port phải là số!');
-        document.querySelector('.spinner').style.display = 'none';
-        return false;
-      }
-
-      // Validate password (must contain exactly one special character)
-      if (!/^[a-zA-Z0-9]*[@#$%&_\-=+][a-zA-Z0-9]*$/.test(p)) {
-        document.getElementById('pass-error').style.display = 'block';
-        showToast('Lỗi', 'Mật khẩu phải chứa đúng 1 ký tự đặc biệt (@, #, $, %, &, _, -, =, +) và không bắt đầu bằng KTDB!');
-        document.querySelector('.spinner').style.display = 'none';
-        return false;
-      }
-
-      // Encode inputs
-      u = encodeURIComponent(u);
-      p = encodeURIComponent(p);
-      tsp = encodeURIComponent(tsp);
-      dm = encodeURIComponent(dm);
-      transp = encodeURIComponent(transp);
-
-      // Construct URL
-     // var url = `https://oem.zoiper.com/qr.php?provider_id=ae45d54c7179618d6e529a6219c0aa80&u=${u}&h=${dm}:${tsp}&p=${p}&tr=${transp}`;
-      //console.log('Generated QR URL:', url); // Log URL for debugging
-// Construct URL với tham số ts mới
-  var url = `https://oem.zoiper.com/qr.php?provider_id=ae45d54c7179618d6e529a6219c0aa80&u=${u}&h=${dm}:${tsp}&p=${p}&tr=${transp}&ts=${ts}`;
-      // Show QR code in modal
-      try {
-        var qrImage = document.getElementById('qrImage');
-        qrImage.src = url;
-        qrImage.style.display = 'none';
-        qrImage.onerror = function() {
-          console.error('Failed to load QR code from URL:', url);
-          document.getElementById('qr-error').style.display = 'block';
-          showToast('Lỗi', 'Không thể tải mã QR. Vui lòng kiểm tra thông tin hoặc thử lại.');
-          document.querySelector('.spinner').style.display = 'none';
-        };
-        qrImage.onload = function() {
-          document.getElementById('qrImage').style.display = 'block';
-          document.querySelector('.spinner').style.display = 'none';
-          showToast('Thành công', 'Tạo mã QR thành công, quét bằng Zoiper!', false);
-          var modal = new bootstrap.Modal(document.getElementById('qrModal'));
-          modal.show();
-        };
-      } catch (e) {
-        console.error('Error generating QR code:', e);
-        document.getElementById('qr-error').style.display = 'block';
-        showToast('Lỗi', 'Lỗi khi tạo mã QR: ' + e.message);
-        document.querySelector('.spinner').style.display = 'none';
-      }
-
-      return false;
-    }
-
-    // Reset form and error messages on reset button click
-    document.querySelector('form').addEventListener('reset', function() {
-      document.getElementById('tsp-error').style.display = 'none';
-      document.getElementById('pass-error').style.display = 'none';
-      document.getElementById('qr-error').style.display = 'none';
-      document.getElementById('qrImage').style.display = 'none';
-      document.querySelector('.spinner').style.display = 'none';
-    });
-  </script>
 </body>
 </html>
